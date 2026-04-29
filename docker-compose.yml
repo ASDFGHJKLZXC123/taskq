@@ -1,0 +1,87 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: taskq
+      POSTGRES_PASSWORD: taskq
+      POSTGRES_DB: taskq
+    ports:
+      - "5432:5432"
+    volumes:
+      - taskq_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskq -d taskq"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    networks:
+      - taskq
+
+  migrate:
+    build: .
+    command: ["alembic", "upgrade", "head"]
+    env_file: .env
+    environment:
+      TASKQ_DATABASE_URL: postgresql://taskq:taskq@db:5432/taskq
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - taskq
+
+  api:
+    build: .
+    command: ["taskq-admin"]
+    env_file: .env
+    environment:
+      TASKQ_DATABASE_URL: postgresql://taskq:taskq@db:5432/taskq
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - taskq
+
+  worker:
+    build: .
+    command: ["taskq-worker"]
+    env_file: .env
+    environment:
+      TASKQ_DATABASE_URL: postgresql://taskq:taskq@db:5432/taskq
+      TASKQ_QUEUE: webhooks
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      subscriber:
+        condition: service_healthy
+    # Honored by `docker compose up`; the README also documents the
+    # explicit override `docker compose up --scale worker=N`.
+    deploy:
+      replicas: 2
+    networks:
+      - taskq
+
+  subscriber:
+    build: .
+    command: ["python", "-m", "taskq.subscriber.main"]
+    env_file: .env
+    environment:
+      TASKQ_DATABASE_URL: postgresql://taskq:taskq@db:5432/taskq
+    expose:
+      - "9000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:9000/admin/deliveries', timeout=2).status == 200 else 1)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks:
+      - taskq
+
+volumes:
+  taskq_pgdata:
+
+networks:
+  taskq:
+    driver: bridge

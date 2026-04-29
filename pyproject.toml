@@ -1,0 +1,54 @@
+[project]
+name = "taskq"
+version = "0.1.0"
+description = "Postgres-backed task queue with workers, retries, and DLQ"
+requires-python = ">=3.12"
+readme = "README.md"
+dependencies = [
+    "asyncpg>=0.29",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "alembic>=1.13",
+    "sqlalchemy>=2.0",
+    "greenlet>=3.0",
+    "structlog>=24.1",
+    "httpx>=0.27",
+    "click>=8.1",
+    "python-dateutil>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "testcontainers[postgres]>=4",
+    "ruff>=0.4",
+    "mypy>=1.9",
+]
+
+[project.scripts]
+taskq = "taskq.cli:taskq_main"
+taskq-worker = "taskq.cli:worker_main"
+taskq-admin = "taskq.cli:admin_main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/taskq"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+markers = [
+    "integration: requires Docker (Testcontainers Postgres)",
+    "chaos: long-running chaos tests",
+    "compose: opt-in docker compose smoke test (set TASKQ_RUN_COMPOSE_TEST=1)",
+]
+testpaths = ["tests"]
