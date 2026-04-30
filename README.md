@@ -1,5 +1,7 @@
 # taskq — a Postgres-backed task queue
 
+[![CI](https://github.com/ASDFGHJKLZXC123/taskq/actions/workflows/ci.yml/badge.svg)](https://github.com/ASDFGHJKLZXC123/taskq/actions/workflows/ci.yml)
+
 ## What this is
 
 `taskq` is a Postgres-backed task queue with distributed workers, retries with
