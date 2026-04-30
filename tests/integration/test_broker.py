@@ -6,8 +6,6 @@ from datetime import timedelta
 
 import pytest
 
-from taskq.broker import Broker
-
 
 pytestmark = pytest.mark.integration
 
@@ -199,7 +197,7 @@ async def test_heartbeat_extends_visible_until_iff_lease_matches(broker, pool):
 
 
 async def test_heartbeat_returns_false_on_terminal_status(broker):
-    task_id = await broker.enqueue("default", "noop", {})
+    await broker.enqueue("default", "noop", {})
     claimed = await broker.claim("default", "worker-1")
     assert claimed is not None
 
@@ -208,7 +206,7 @@ async def test_heartbeat_returns_false_on_terminal_status(broker):
     ok = await broker.heartbeat(claimed.id, claimed.lease_id, extend_s=60)
     assert ok is False
 
-    task_id_2 = await broker.enqueue("default", "noop", {})
+    await broker.enqueue("default", "noop", {})
     claimed_2 = await broker.claim("default", "worker-1")
     assert claimed_2 is not None
     await broker.kill(claimed_2.id, claimed_2.lease_id, error="x")

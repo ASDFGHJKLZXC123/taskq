@@ -126,7 +126,7 @@ async def deliver_webhook(payload: WebhookPayload) -> None:
     if status == 429:
         retry_after_header = response.headers.get("Retry-After")
         retry_after = _parse_retry_after(retry_after_header) if retry_after_header else None
-        err = RetriableError(f"upstream returned 429")
+        err = RetriableError("upstream returned 429")
         if retry_after is not None:
             err.retry_after_seconds = retry_after  # type: ignore[attr-defined]
         raise err

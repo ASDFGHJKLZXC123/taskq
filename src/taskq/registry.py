@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable, Type
+from typing import Awaitable, Callable, Type
 
 from pydantic import BaseModel
 
