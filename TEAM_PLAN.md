@@ -633,7 +633,7 @@ Conftest fixtures (Testing + DevEx own):
   2. Broadcasts the change in their final summary so the affected agent sees it next run.
   3. Does NOT edit the teammate's file directly.
 - Confusion resolution order:
-  1. Re-read the spec (`task-queue-service (3).md`).
+  1. Re-read the spec (`docs/SPEC.md`).
   2. Re-read this `TEAM_PLAN.md`.
   3. Search the internet (asyncpg/Alembic/pydantic-settings docs).
   4. Flag the question in the agent's final summary so the user can decide.

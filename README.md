@@ -29,7 +29,7 @@ A single Postgres table is the source of truth. Workers pull rows with
 `SELECT ... FOR UPDATE SKIP LOCKED`. Heartbeats keep `visible_until` fresh; a
 crashed worker's task is automatically reclaimed once that deadline passes.
 
-See [`task-queue-service (3).md`](./task-queue-service%20%283%29.md) for the
+See [`docs/SPEC.md`](./docs/SPEC.md) for the
 spec and design discussion.
 
 ## Quickstart with Docker
